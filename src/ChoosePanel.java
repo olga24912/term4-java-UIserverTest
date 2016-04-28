@@ -4,6 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.IOException;
 import java.text.NumberFormat;
 
 public class ChoosePanel extends JPanel implements PropertyChangeListener, ActionListener {
@@ -12,9 +13,9 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
     private static String deltaBetweenQuery = "Time between client query(delta): ";
     private static String countOfQuery = "Count of query from one client(X): ";
 
-    private JLabel nLabel;
-    private JLabel mLabel;
-    private JLabel deltaLabel;
+    private JRadioButton nButton;
+    private JRadioButton mButton;
+    private JRadioButton deltaButton;
     private JLabel xLabel;
 
     private JFormattedTextField nField;
@@ -30,14 +31,15 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
     private static String udpNewThreadString = "UDP protocol. New thread for query";
     private static String udpThreadPoolString = "UDP protocol. Thread pool for query";
 
-
+    private JButton testButton;
+    private String testString = "TEST";
 
     public ChoosePanel() {
         super(new BorderLayout());
 
-        nLabel = new JLabel(countOfElemN);
-        mLabel = new JLabel(countOfClientM);
-        deltaLabel = new JLabel(deltaBetweenQuery);
+        nButton = new JRadioButton(countOfElemN);
+        mButton = new JRadioButton(countOfClientM);
+        deltaButton = new JRadioButton(deltaBetweenQuery);
         xLabel = new JLabel(countOfQuery);
 
         nField = new JFormattedTextField(NumberFormat.getNumberInstance());
@@ -52,10 +54,16 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
         xField = new JFormattedTextField(NumberFormat.getNumberInstance());
         xField.setColumns(10);
 
-        nLabel.setLabelFor(nField);
-        mLabel.setLabelFor(mField);
-        deltaLabel.setLabelFor(deltaField);
+        nButton.setActionCommand(countOfElemN);
+        mButton.setActionCommand(countOfClientM);
+        deltaButton.setActionCommand(deltaBetweenQuery);
         xLabel.setLabelFor(xField);
+
+
+        ButtonGroup changingGroup = new ButtonGroup();
+        changingGroup.add(nButton);
+        changingGroup.add(mButton);
+        changingGroup.add(deltaButton);
 
         JRadioButton tcpNewThreadForClientButton = new JRadioButton(tcpNewThreadForClientString);
         tcpNewThreadForClientButton.setActionCommand(tcpNewThreadForClientString);
@@ -83,6 +91,13 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
         group.add(udpNewThreadButton);
         group.add(udpThreadPoolButton);
 
+        testButton = new JButton(testString);
+        testButton.setVerticalTextPosition(AbstractButton.BOTTOM);
+        testButton.setHorizontalTextPosition(AbstractButton.LEADING);
+        testButton.setActionCommand(testString);
+
+        testButton.addActionListener(this);
+        
         JPanel radioButtonPane = new JPanel(new GridLayout(0, 1));
         radioButtonPane.add(tcpNewThreadForClientButton);
         radioButtonPane.add(tcpCashedThreadPoolForClientButton);
@@ -92,9 +107,9 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
         radioButtonPane.add(udpThreadPoolButton);
 
         JPanel labelPane = new JPanel(new GridLayout(0, 1));
-        labelPane.add(nLabel);
-        labelPane.add(mLabel);
-        labelPane.add(deltaLabel);
+        labelPane.add(nButton);
+        labelPane.add(mButton);
+        labelPane.add(deltaButton);
         labelPane.add(xLabel);
 
         JPanel fieldPane = new JPanel(new GridLayout(0, 1));
@@ -103,10 +118,14 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
         fieldPane.add(deltaField);
         fieldPane.add(xField);
 
-        setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        JPanel testButtonPane = new JPanel(new GridLayout(0, 1));
+        testButtonPane.add(testButton);
+
+        setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 30));
         add(labelPane, BorderLayout.CENTER);
         add(fieldPane, BorderLayout.LINE_END);
         add(radioButtonPane, BorderLayout.LINE_START);
+        add(testButtonPane, BorderLayout.AFTER_LAST_LINE);
     }
 
     @Override
@@ -116,6 +135,28 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        System.err.println("action");
+        if (testString.equals(e.getActionCommand())) {
+            ServerTCPThreadForClient server = new ServerTCPThreadForClient(8080);
+            try {
+                server.start();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
 
+            Client client = null;
+            try {
+                client = new Client("localhost", 8080, 10);
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+            try {
+                assert client != null;
+                client.sendQuery();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+            ;
+        }
     }
 }

@@ -14,6 +14,7 @@ public class Client {
     private Random rnd = new Random();
 
     public Client(String host, int port, int arraySize) throws IOException {
+        System.err.print("ok");
         socket = new Socket(host, port);
         dis = new DataInputStream(socket.getInputStream());
         dos = new DataOutputStream(socket.getOutputStream());
