@@ -41,6 +41,7 @@ public class Client {
         }
         dos.flush();
 
+        System.err.println("print info");
         dis.readInt();
         for (int i = 0; i < arraySize; ++i) {
             dis.readInt();

@@ -11,6 +11,9 @@ public final class Main {
 
         frame.setLayout(new GridLayout(0, 2));
         frame.add(new ChoosePanel());
+        frame.add(new GraphPanel());
+        frame.add(new GraphPanel());
+        frame.add(new GraphPanel());
 
         frame.pack();
         frame.setVisible(true);

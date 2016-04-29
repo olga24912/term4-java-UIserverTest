@@ -97,7 +97,7 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
         testButton.setActionCommand(testString);
 
         testButton.addActionListener(this);
-        
+
         JPanel radioButtonPane = new JPanel(new GridLayout(0, 1));
         radioButtonPane.add(tcpNewThreadForClientButton);
         radioButtonPane.add(tcpCashedThreadPoolForClientButton);
@@ -153,6 +153,8 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
             try {
                 assert client != null;
                 client.sendQuery();
+                System.err.println("fin");
+                server.stop();
             } catch (IOException e1) {
                 e1.printStackTrace();
             }

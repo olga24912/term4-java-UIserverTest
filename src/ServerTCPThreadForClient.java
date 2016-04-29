@@ -69,12 +69,14 @@ public class ServerTCPThreadForClient {
                     array[i] = dis.readInt();
                 }
 
+                System.err.println("read info");
                 Arrays.sort(array);
 
-                dos.write(arraySize);
+                dos.writeInt(arraySize);
                 for (int i = 0; i < arraySize; ++i) {
-                    dos.write(array[i]);
+                    dos.writeInt(array[i]);
                 }
+                System.err.println("send back");
             }
         } catch (IOException ignored) {
         } finally {
