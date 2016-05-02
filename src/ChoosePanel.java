@@ -132,6 +132,10 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
         udpNewThreadButton.addActionListener(this);
         udpThreadPoolButton.addActionListener(this);
 
+        nButton.addActionListener(this);
+        mButton.addActionListener(this);
+        deltaButton.addActionListener(this);
+
         ButtonGroup group = new ButtonGroup();
         group.add(tcpNewThreadForClientButton);
         group.add(tcpCashedThreadPoolForClientButton);
@@ -224,6 +228,18 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
             currentArchitecture = udpNewThreadString;
         } else if (udpThreadPoolString.equals(e.getActionCommand())) {
             currentArchitecture = udpThreadPoolString;
+        } else if (countOfElemN.equals(e.getActionCommand())) {
+            nField.setEnabled(false);
+            mField.setEnabled(true);
+            deltaField.setEnabled(true);
+        } else if (countOfClientM.equals(e.getActionCommand())) {
+            mField.setEnabled(false);
+            nField.setEnabled(true);
+            deltaField.setEnabled(true);
+        } else if (deltaBetweenQuery.equals(e.getActionCommand())) {
+            deltaField.setEnabled(false);
+            nField.setEnabled(true);
+            mField.setEnabled(true);
         }
     }
 
