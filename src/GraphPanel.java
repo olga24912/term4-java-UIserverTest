@@ -7,6 +7,13 @@ import static java.lang.Integer.max;
 public class GraphPanel extends JPanel {
     private ArrayList<Point> points = new ArrayList<>();
 
+    public GraphPanel(String nameOfGraph) {
+        JLabel nameOfGraphLabel = new JLabel(nameOfGraph);
+
+        setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 30));
+        add(nameOfGraphLabel, BorderLayout.NORTH);
+    }
+
     public void setPoints(ArrayList<Point> points) {
         this.points = points;
         System.err.println("new Points");
@@ -33,8 +40,8 @@ public class GraphPanel extends JPanel {
         int maxY = 0;
         int start = points.get(0).getX(), finish = points.get(points.size() - 1).getX();
 
-        for (int i = 0; i < points.size(); ++i) {
-            maxY = max(maxY, points.get(i).getY());
+        for (Point point : points) {
+            maxY = max(maxY, point.getY());
         }
 
         System.err.println("Finish " + finish + " start " + start);

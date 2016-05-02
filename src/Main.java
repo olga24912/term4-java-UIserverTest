@@ -9,9 +9,9 @@ public final class Main {
         final JFrame frame = new JFrame("Server Test");
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
-        GraphPanel taskTimeGraphPanel = new GraphPanel(),
-                clientTimeGraphPanel = new GraphPanel(),
-                averageTimeGraphPanel = new GraphPanel();
+        GraphPanel taskTimeGraphPanel = new GraphPanel("Time for one task"),
+                clientTimeGraphPanel = new GraphPanel("Time for client on server"),
+                averageTimeGraphPanel = new GraphPanel("Time of client working");
 
         ChoosePanel mainChoosePane = new ChoosePanel();
 
