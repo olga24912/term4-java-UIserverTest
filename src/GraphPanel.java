@@ -49,13 +49,13 @@ public class GraphPanel extends JPanel {
             oldX = getWidth()*oldX/(finish - start);
             oldX += startX;
 
-            oldY = getHeight() - maxY * oldY/getHeight();
+            oldY = getHeight() - getHeight() * oldY/maxY;
 
             newX -= start;
             newX = getWidth()*newX/(finish - start);
             newX += startX;
 
-            newY = getHeight() - maxY * newY/getHeight();
+            newY = getHeight() - getHeight() * newY/maxY;
 
             System.err.println("print Line " + oldX + " "  + oldY + " " + newX + " " + newY);
             g.drawLine(oldX, oldY, newX, newY);
