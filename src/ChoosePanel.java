@@ -193,7 +193,7 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
     }
 
     private void testTaskTimeTcpNewThreadForClient() {
-        int N = 1000000, M = 1, X = 1, delta = 1;
+        int N = 100000000, M = 1, X = 1, delta = 1;
 
         ArrayList<Point> taskTimeStatistic = new ArrayList<>();
 

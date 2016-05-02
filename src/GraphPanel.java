@@ -18,8 +18,8 @@ public class GraphPanel extends JPanel {
         g.clearRect(0, 0, getWidth(), getHeight());
         g.setColor(Color.BLACK);
 
-        int startX = getWidth()/10;
-        int startY = 9*getHeight()/10;
+        int startX = 0;
+        int startY = getHeight() - 1;
 
         g.drawOval(startX - 1, startY - 1, 2, 2);
 
@@ -49,13 +49,13 @@ public class GraphPanel extends JPanel {
             oldX = getWidth()*oldX/(finish - start);
             oldX += startX;
 
-            oldY = maxY * oldY/getHeight();
+            oldY = getHeight() - maxY * oldY/getHeight();
 
             newX -= start;
             newX = getWidth()*newX/(finish - start);
             newX += startX;
 
-            newY = maxY * newY/getHeight();
+            newY = getHeight() - maxY * newY/getHeight();
 
             System.err.println("print Line " + oldX + " "  + oldY + " " + newX + " " + newY);
             g.drawLine(oldX, oldY, newX, newY);
