@@ -37,6 +37,7 @@ public class Client {
             sendQuery();
             Thread.sleep(timeBetweenQuery);
         }
+        close();
     }
 
     public void sendQuery() throws IOException {

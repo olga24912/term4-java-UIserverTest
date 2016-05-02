@@ -247,6 +247,7 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
         int N = 1, M = 1, X = 1, delta = 1;
 
         ArrayList<Point> taskTimeStatistic = new ArrayList<>();
+        ArrayList<Point> clientTimeStatistic = new ArrayList<>();
 
         for (int n = beginLimit; n < endLimit; n += step) {
             ServerTCPThreadForClient server = new ServerTCPThreadForClient(8080);
@@ -269,13 +270,15 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
                 System.err.println("fin");
                 server.stop();
 
-                System.err.println("time: "  +  server.getTimeForTask() );
+                System.err.println("time: "  +  server.getTimeForClient() );
                 taskTimeStatistic.add(new Point(n, (int) server.getTimeForTask()));
+                clientTimeStatistic.add(new Point(n, (int) server.getTimeForClient()));
             } catch (IOException | InterruptedException e1) {
                 e1.printStackTrace();
             }
         }
 
         taskTimeGraphPanel.setPoints(taskTimeStatistic);
+        clientTimeGraphPanel.setPoints(clientTimeStatistic);
     }
 }

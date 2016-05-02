@@ -50,16 +50,17 @@ public class ServerTCPThreadForClient {
     private void catchSocket() throws IOException {
         while (true) {
             Socket socket = accept();
+            long beginClientTime = System.currentTimeMillis();
             if (socket != null) {
                 (new Thread(()->{
-                    handlingQueries(socket);})).start();
+                    handlingQueries(socket, beginClientTime);})).start();
             } else {
                 return;
             }
         }
     }
 
-    private void handlingQueries(Socket socket) {
+    private void handlingQueries(Socket socket, long beginClientTime) {
         try {
             DataInputStream dis = new DataInputStream(socket.getInputStream());
             DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
@@ -83,9 +84,11 @@ public class ServerTCPThreadForClient {
                 }
                 System.err.println("send back");
             }
+            System.err.println("Socket close");
         } catch (IOException ignored) {
         } finally {
             try {
+                timeForClient = System.currentTimeMillis() - beginClientTime;
                 socket.close();
             } catch (IOException ignored) {
             }
