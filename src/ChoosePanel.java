@@ -6,12 +6,22 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 
 public class ChoosePanel extends JPanel implements PropertyChangeListener, ActionListener {
+    private static String tcpNewThreadForClientString = "TCP protocol. New thread for client";
+    private static String tcpCashedThreadPoolForClientString = "TCP protocol. New cashed thread pool for client";
+    private static String tcpNIOString = "TCP protocol. NIO processing. Query in thread pool";
+    private static String tcpNewConnectOnQueryString = "TCP protocol. New connect for query";
+    private static String udpNewThreadString = "UDP protocol. New thread for query";
+    private static String udpThreadPoolString = "UDP protocol. Thread pool for query";
+
     private static String countOfElemN = "Count of element in array(N): ";
     private static String countOfClientM = "Count of working clients in same moment(M): ";
     private static String deltaBetweenQuery = "Time between client query(delta): ";
     private static String countOfQuery = "Count of query from one client(X): ";
+
+    private GraphPanel taskTimeGraphPanel, clientTimeGraphPanel, averageTimeGraphPanel;
 
     private JRadioButton nButton;
     private JRadioButton mButton;
@@ -23,16 +33,10 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
     private JFormattedTextField deltaField;
     private JFormattedTextField xField;
 
-
-    private static String tcpNewThreadForClientString = "TCP protocol. New thread for client";
-    private static String tcpCashedThreadPoolForClientString = "TCP protocol. New cashed thread pool for client";
-    private static String tcpNIOString = "TCP protocol. NIO processing. Query in thread pool";
-    private static String tcpNewConnectOnQueryString = "TCP protocol. New connect for query";
-    private static String udpNewThreadString = "UDP protocol. New thread for query";
-    private static String udpThreadPoolString = "UDP protocol. Thread pool for query";
-
     private JButton testButton;
-    private String testString = "TEST";
+    private static String testString = "TEST";
+
+    private String currentArchitecture = tcpNewThreadForClientString;
 
     public ChoosePanel() {
         super(new BorderLayout());
@@ -83,6 +87,13 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
         JRadioButton udpThreadPoolButton = new JRadioButton(udpThreadPoolString);
         udpThreadPoolButton.setActionCommand(udpThreadPoolString);
 
+        tcpNewThreadForClientButton.addActionListener(this);
+        tcpCashedThreadPoolForClientButton.addActionListener(this);
+        tcpNIOButton.addActionListener(this);
+        tcpNewConnectOnQueryButton.addActionListener(this);
+        udpNewThreadButton.addActionListener(this);
+        udpThreadPoolButton.addActionListener(this);
+
         ButtonGroup group = new ButtonGroup();
         group.add(tcpNewThreadForClientButton);
         group.add(tcpCashedThreadPoolForClientButton);
@@ -128,6 +139,18 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
         add(testButtonPane, BorderLayout.AFTER_LAST_LINE);
     }
 
+    public void setTaskTimeGraphPanel(GraphPanel graphPanel) {
+        taskTimeGraphPanel = graphPanel;
+    }
+
+    public void setClientTimeGraphPanel(GraphPanel clientTimeGraphPanel) {
+        this.clientTimeGraphPanel = clientTimeGraphPanel;
+    }
+
+    public void setAverageTimeGraphPanel(GraphPanel averageTimeGraphPanel) {
+        this.averageTimeGraphPanel = averageTimeGraphPanel;
+    }
+
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
 
@@ -137,6 +160,44 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
     public void actionPerformed(ActionEvent e) {
         System.err.println("action");
         if (testString.equals(e.getActionCommand())) {
+            testTime();
+        } else if (tcpNewThreadForClientString.equals(e.getActionCommand())) {
+            currentArchitecture = tcpNewThreadForClientString;
+        } else if (tcpNewConnectOnQueryString.equals(e.getActionCommand())) {
+            currentArchitecture = tcpNewConnectOnQueryString;
+        } else if (tcpCashedThreadPoolForClientString.equals(e.getActionCommand())) {
+            currentArchitecture = tcpCashedThreadPoolForClientString;
+        } else if (tcpNIOString.equals(e.getActionCommand())) {
+            currentArchitecture = tcpNIOString;
+        } else if (udpNewThreadString.equals(e.getActionCommand())) {
+            currentArchitecture = udpNewThreadString;
+        } else if (udpThreadPoolString.equals(e.getActionCommand())) {
+            currentArchitecture = udpThreadPoolString;
+        }
+    }
+
+    private void testTime() {
+        if (currentArchitecture.equals(tcpNewThreadForClientString)) {
+            testTaskTimeTcpNewThreadForClient();
+        } else if (currentArchitecture.equals(tcpNewThreadForClientString)) {
+
+        } else if (currentArchitecture.equals(tcpCashedThreadPoolForClientString)) {
+
+        } else if (currentArchitecture.equals(tcpNIOString)) {
+
+        } else if (currentArchitecture.equals(udpNewThreadString)) {
+
+        } else if (currentArchitecture.equals(udpThreadPoolString)) {
+
+        }
+    }
+
+    private void testTaskTimeTcpNewThreadForClient() {
+        int N = 1000000, M = 1, X = 1, delta = 1;
+
+        ArrayList<Point> taskTimeStatistic = new ArrayList<>();
+
+        for (int n = 0; n < N; n += N/10) {
             ServerTCPThreadForClient server = new ServerTCPThreadForClient(8080);
             try {
                 server.start();
@@ -146,19 +207,24 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
 
             Client client = null;
             try {
-                client = new Client("localhost", 8080, 10);
+                client = new Client("localhost", 8080, n, X, delta);
             } catch (IOException e1) {
                 e1.printStackTrace();
             }
+
             try {
                 assert client != null;
-                client.sendQuery();
+                client.run();
                 System.err.println("fin");
                 server.stop();
-            } catch (IOException e1) {
+
+                System.err.println("time: "  +  server.getTimeForTask() );
+                taskTimeStatistic.add(new Point(n, (int) server.getTimeForTask()));
+            } catch (IOException | InterruptedException e1) {
                 e1.printStackTrace();
             }
-            ;
         }
+
+        taskTimeGraphPanel.setPoints(taskTimeStatistic);
     }
 }

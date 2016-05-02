@@ -1,15 +1,15 @@
 import javax.swing.*;
 import java.awt.*;
-import java.util.AbstractList;
 import java.util.ArrayList;
 
 import static java.lang.Integer.max;
 
 public class GraphPanel extends JPanel {
-    private AbstractList<Point> points = new ArrayList<>();
+    private ArrayList<Point> points = new ArrayList<>();
 
     public void setPoints(ArrayList<Point> points) {
         this.points = points;
+        System.err.println("new Points");
         repaint();
     }
 
@@ -37,22 +37,27 @@ public class GraphPanel extends JPanel {
             maxY = max(maxY, points.get(i).getY());
         }
 
+        System.err.println("Finish " + finish + " start " + start);
+
         for (int i = 1; i < points.size(); ++i) {
             int oldX = points.get(i - 1).getX(), oldY = points.get(i - 1).getY();
-            int newX = points.get(i - 1).getX(), newY = points.get(i - 1).getY();
+            int newX = points.get(i).getX(), newY = points.get(i).getY();
+
+            System.err.println( "Old x : " + oldX + " NewX " + newX);
 
             oldX -= start;
-            oldX = (finish - start)*oldX/getWidth();
+            oldX = getWidth()*oldX/(finish - start);
             oldX += startX;
 
             oldY = maxY * oldY/getHeight();
 
             newX -= start;
-            newX = (finish - start)*newX/getWidth();
+            newX = getWidth()*newX/(finish - start);
             newX += startX;
 
             newY = maxY * newY/getHeight();
 
+            System.err.println("print Line " + oldX + " "  + oldY + " " + newX + " " + newY);
             g.drawLine(oldX, oldY, newX, newY);
         }
     }

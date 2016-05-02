@@ -9,11 +9,22 @@ public final class Main {
         final JFrame frame = new JFrame("Server Test");
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
+        GraphPanel taskTimeGraphPanel = new GraphPanel(),
+                clientTimeGraphPanel = new GraphPanel(),
+                averageTimeGraphPanel = new GraphPanel();
+
+        ChoosePanel mainChoosePane = new ChoosePanel();
+
+        mainChoosePane.setTaskTimeGraphPanel(taskTimeGraphPanel);
+        mainChoosePane.setClientTimeGraphPanel(clientTimeGraphPanel);
+        mainChoosePane.setAverageTimeGraphPanel(averageTimeGraphPanel);
+
         frame.setLayout(new GridLayout(0, 2));
-        frame.add(new ChoosePanel());
-        frame.add(new GraphPanel());
-        frame.add(new GraphPanel());
-        frame.add(new GraphPanel());
+
+        frame.add(mainChoosePane);
+        frame.add(taskTimeGraphPanel);
+        frame.add(clientTimeGraphPanel);
+        frame.add(averageTimeGraphPanel);
 
         frame.pack();
         frame.setVisible(true);

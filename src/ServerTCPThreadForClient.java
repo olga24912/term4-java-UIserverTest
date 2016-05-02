@@ -10,6 +10,9 @@ public class ServerTCPThreadForClient {
     private ServerSocket serverSocket;
     private final int port;
 
+    private long timeForTask;
+    private long timeForClient;
+
     public ServerTCPThreadForClient(int port) {
         this.port = port;
     }
@@ -69,8 +72,10 @@ public class ServerTCPThreadForClient {
                     array[i] = dis.readInt();
                 }
 
+                long beginQueryTime = System.currentTimeMillis();
                 System.err.println("read info");
                 Arrays.sort(array);
+                timeForTask = System.currentTimeMillis() - beginQueryTime;
 
                 dos.writeInt(arraySize);
                 for (int i = 0; i < arraySize; ++i) {
@@ -85,5 +90,13 @@ public class ServerTCPThreadForClient {
             } catch (IOException ignored) {
             }
         }
+    }
+
+    public long getTimeForTask() {
+        return timeForTask;
+    }
+
+    public long getTimeForClient() {
+        return timeForClient;
     }
 }

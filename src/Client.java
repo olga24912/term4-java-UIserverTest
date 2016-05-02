@@ -11,21 +11,31 @@ public class Client {
     private DataOutputStream dos;
 
     private int arraySize;
+    private int cntQuery;
+    private int timeBetweenQuery;
     private Random rnd = new Random();
 
-    public Client(String host, int port, int arraySize) throws IOException {
-        System.err.print("ok");
+    public Client(String host, int port, int arraySize, int cntQuery, int timeBetweenQuery) throws IOException {
         socket = new Socket(host, port);
         dis = new DataInputStream(socket.getInputStream());
         dos = new DataOutputStream(socket.getOutputStream());
 
         this.arraySize = arraySize;
+        this.cntQuery = cntQuery;
+        this.timeBetweenQuery = timeBetweenQuery;
     }
 
     public void close() {
         try {
             socket.close();
         } catch (IOException ignored) {
+        }
+    }
+
+    public void run() throws IOException, InterruptedException {
+        for (int i = 0; i < cntQuery; ++i) {
+            sendQuery();
+            Thread.sleep(timeBetweenQuery);
         }
     }
 
