@@ -16,10 +16,14 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
     private static String udpNewThreadString = "UDP protocol. New thread for query";
     private static String udpThreadPoolString = "UDP protocol. Thread pool for query";
 
-    private static String countOfElemN = "Count of element in array(N): ";
-    private static String countOfClientM = "Count of working clients in same moment(M): ";
-    private static String deltaBetweenQuery = "Time between client query(delta): ";
-    private static String countOfQuery = "Count of query from one client(X): ";
+    private static String countOfElemN = "(N)Count of element in array: ";
+    private static String countOfClientM = "(M)Count of working clients in same moment: ";
+    private static String deltaBetweenQuery = "(delta)Time between client query: ";
+    private static String countOfQuery = "(X)Count of query from one client: ";
+
+    private static String beginOfLimitString = "Minimal value of chosen parameter";
+    private static String endOfLimitString = "Maximal value of chosen parameter";
+    private static String stepString = "step of change parameter";
 
     private GraphPanel taskTimeGraphPanel, clientTimeGraphPanel, averageTimeGraphPanel;
 
@@ -28,15 +32,26 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
     private JRadioButton deltaButton;
     private JLabel xLabel;
 
+    private JLabel beginLimitLabel;
+    private JLabel endLimitLabel;
+    private JLabel stepLabel;
+
     private JFormattedTextField nField;
     private JFormattedTextField mField;
     private JFormattedTextField deltaField;
     private JFormattedTextField xField;
 
+    private JFormattedTextField beginLimitField;
+    private JFormattedTextField endLimitField;
+    private JFormattedTextField stepField;
+
     private JButton testButton;
     private static String testString = "TEST";
 
     private String currentArchitecture = tcpNewThreadForClientString;
+    private int beginLimit = 0;
+    private int endLimit = 0;
+    private int step = 1;
 
     public ChoosePanel() {
         super(new BorderLayout());
@@ -46,22 +61,45 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
         deltaButton = new JRadioButton(deltaBetweenQuery);
         xLabel = new JLabel(countOfQuery);
 
+        beginLimitLabel = new JLabel(beginOfLimitString);
+        endLimitLabel = new JLabel(endOfLimitString);
+        stepLabel = new JLabel(stepString);
+
         nField = new JFormattedTextField(NumberFormat.getNumberInstance());
-        nField.setColumns(10);
+        nField.setColumns(5);
+        nField.addPropertyChangeListener("value", this);
 
         mField = new JFormattedTextField(NumberFormat.getNumberInstance());
-        mField.setColumns(10);
+        mField.setColumns(5);
+        mField.addPropertyChangeListener("value", this);
 
         deltaField = new JFormattedTextField(NumberFormat.getNumberInstance());
-        deltaField.setColumns(10);
+        deltaField.setColumns(5);
+        deltaField.addPropertyChangeListener("value", this);
 
         xField = new JFormattedTextField(NumberFormat.getNumberInstance());
-        xField.setColumns(10);
+        xField.setColumns(5);
+        xField.addPropertyChangeListener("value", this);
+
+        beginLimitField = new JFormattedTextField(NumberFormat.getNumberInstance());
+        beginLimitField.setColumns(5);
+        beginLimitField.addPropertyChangeListener("value", this);
+
+        endLimitField = new JFormattedTextField(NumberFormat.getNumberInstance());
+        endLimitField.setColumns(5);
+        endLimitField.addPropertyChangeListener("value", this);
+
+        stepField = new JFormattedTextField(NumberFormat.getNumberInstance());
+        stepField.setColumns(5);
+        stepField.addPropertyChangeListener("value", this);
 
         nButton.setActionCommand(countOfElemN);
         mButton.setActionCommand(countOfClientM);
         deltaButton.setActionCommand(deltaBetweenQuery);
         xLabel.setLabelFor(xField);
+        beginLimitLabel.setLabelFor(beginLimitField);
+        endLimitLabel.setLabelFor(endLimitField);
+        stepLabel.setLabelFor(stepField);
 
 
         ButtonGroup changingGroup = new ButtonGroup();
@@ -122,12 +160,18 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
         labelPane.add(mButton);
         labelPane.add(deltaButton);
         labelPane.add(xLabel);
+        labelPane.add(beginLimitLabel);
+        labelPane.add(endLimitLabel);
+        labelPane.add(stepLabel);
 
         JPanel fieldPane = new JPanel(new GridLayout(0, 1));
         fieldPane.add(nField);
         fieldPane.add(mField);
         fieldPane.add(deltaField);
         fieldPane.add(xField);
+        fieldPane.add(beginLimitField);
+        fieldPane.add(endLimitField);
+        fieldPane.add(stepField);
 
         JPanel testButtonPane = new JPanel(new GridLayout(0, 1));
         testButtonPane.add(testButton);
@@ -152,8 +196,15 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
     }
 
     @Override
-    public void propertyChange(PropertyChangeEvent evt) {
-
+    public void propertyChange(PropertyChangeEvent e) {
+        Object source = e.getSource();
+        if (source == beginLimitField) {
+            beginLimit = ((Number)beginLimitField.getValue()).intValue();
+        } else if (source == endLimitField) {
+            endLimit = ((Number)endLimitField.getValue()).intValue();
+        } else if (source == stepField) {
+            step = ((Number)stepField.getValue()).intValue();
+        }
     }
 
     @Override
@@ -193,11 +244,11 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
     }
 
     private void testTaskTimeTcpNewThreadForClient() {
-        int N = 100000000, M = 1, X = 1, delta = 1;
+        int N = 1, M = 1, X = 1, delta = 1;
 
         ArrayList<Point> taskTimeStatistic = new ArrayList<>();
 
-        for (int n = 0; n < N; n += N/10) {
+        for (int n = beginLimit; n < endLimit; n += step) {
             ServerTCPThreadForClient server = new ServerTCPThreadForClient(8080);
             try {
                 server.start();
