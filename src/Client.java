@@ -32,12 +32,14 @@ public class Client {
         }
     }
 
-    public void run() throws IOException, InterruptedException {
+    public long run() throws IOException, InterruptedException {
+        long beginTime = System.currentTimeMillis();
         for (int i = 0; i < cntQuery; ++i) {
             sendQuery();
             Thread.sleep(timeBetweenQuery);
         }
         close();
+        return System.currentTimeMillis() - beginTime;
     }
 
     public void sendQuery() throws IOException {
