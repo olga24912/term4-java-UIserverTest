@@ -37,7 +37,7 @@ public class GraphPanel extends JPanel {
             return;
         }
 
-        int maxY = 0;
+        int maxY = 1;
         int start = points.get(0).getX(), finish = points.get(points.size() - 1).getX();
 
         for (Point point : points) {

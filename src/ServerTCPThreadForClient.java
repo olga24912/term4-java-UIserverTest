@@ -13,26 +13,33 @@ public class ServerTCPThreadForClient {
     private long timeForTask;
     private long timeForClient;
 
+    private Thread catchThread;
+
     public ServerTCPThreadForClient(int port) {
         this.port = port;
     }
 
-    public Thread start() throws IOException {
+    public void start() throws IOException {
         serverSocket = new ServerSocket(port);
-        Thread thread = new Thread(() -> {
+        catchThread = new Thread(() -> {
             try {
                 catchSocket();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         });
-        thread.start();
-        return thread;
+        catchThread.start();
     }
 
     public synchronized void stop() {
         try {
             serverSocket.close();
+            catchThread.interrupt();
+            try {
+                catchThread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -76,7 +83,7 @@ public class ServerTCPThreadForClient {
                 long beginQueryTime = System.currentTimeMillis();
                 System.err.println("read info");
                 Arrays.sort(array);
-                timeForTask = System.currentTimeMillis() - beginQueryTime;
+                timeForTask += System.currentTimeMillis() - beginQueryTime;
 
                 dos.writeInt(arraySize);
                 for (int i = 0; i < arraySize; ++i) {
@@ -88,7 +95,7 @@ public class ServerTCPThreadForClient {
         } catch (IOException ignored) {
         } finally {
             try {
-                timeForClient = System.currentTimeMillis() - beginClientTime;
+                timeForClient += System.currentTimeMillis() - beginClientTime;
                 socket.close();
             } catch (IOException ignored) {
             }

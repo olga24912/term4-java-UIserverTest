@@ -202,6 +202,9 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
     @Override
     public void propertyChange(PropertyChangeEvent e) {
         Object source = e.getSource();
+        if (((JFormattedTextField)source).getValue() == null) {
+            return;
+        }
         if (source == beginLimitField) {
             beginLimit = ((Number)beginLimitField.getValue()).intValue();
         } else if (source == endLimitField) {
@@ -260,7 +263,7 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
     }
 
     private void testTaskTimeTcpNewThreadForClient() {
-        int N = 1, M = 1, X = 1, delta = 1;
+        int N = 1, M = 10, X = 1, delta = 1;
 
         ArrayList<Point> taskTimeStatistic = new ArrayList<>();
         ArrayList<Point> clientTimeStatistic = new ArrayList<>();
@@ -272,28 +275,48 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
                 server.start();
             } catch (IOException e1) {
                 e1.printStackTrace();
+                return;
             }
 
-            Client client = null;
-            try {
-                client = new Client("localhost", 8080, n, X, delta);
-            } catch (IOException e1) {
-                e1.printStackTrace();
-            }
+            ArrayList<Thread> threads = new ArrayList<>();
+            ArrayList<Client> clients = new ArrayList<>();
 
-            try {
+            for (int m = 0; m < M; ++m) {
+                Client client = null;
+                try {
+                    client = new Client("localhost", 8080, n, X, delta);
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+
+                clients.add(client);
+
                 assert client != null;
-                long clintTime = client.run();
-                System.err.println("fin");
-                server.stop();
+                Thread newThread = new Thread(client);
 
-                System.err.println("time: "  +  server.getTimeForClient() );
-                taskTimeStatistic.add(new Point(n, (int) server.getTimeForTask()));
-                clientTimeStatistic.add(new Point(n, (int) server.getTimeForClient()));
-                averageTimeStatistic.add(new Point(n, (int) clintTime));
-            } catch (IOException | InterruptedException e1) {
-                e1.printStackTrace();
+                threads.add(newThread);
+                newThread.start();
             }
+
+            for (int m = 0; m < M; ++m) {
+                try {
+                    threads.get(m).join();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            server.stop();
+
+            long clintTime = 0;
+            for (int i = 0; i < M; ++i) {
+                clintTime += clients.get(i).getWorkingTime();
+            }
+
+            taskTimeStatistic.add(new Point(n, (int) server.getTimeForTask()/M));
+            clientTimeStatistic.add(new Point(n, (int) server.getTimeForClient()/M));
+            averageTimeStatistic.add(new Point(n, (int) clintTime/M));
+
         }
 
         taskTimeGraphPanel.setPoints(taskTimeStatistic);
