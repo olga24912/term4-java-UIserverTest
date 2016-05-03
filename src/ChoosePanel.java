@@ -25,6 +25,11 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
     private static String endOfLimitString = "Maximal value of chosen parameter";
     private static String stepString = "step of change parameter";
 
+    private static String yString = "time, ms";
+    private static String xNString = "N, array size";
+    private static String xMString = "M, clients count";
+    private static String xDeltaString = "delta, between query time";
+
     private GraphPanel taskTimeGraphPanel, clientTimeGraphPanel, averageTimeGraphPanel;
 
     private JRadioButton nButton;
@@ -318,6 +323,14 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
             averageTimeStatistic.add(new Point(n, (int) clintTime/M));
 
         }
+        taskTimeGraphPanel.setxString(xNString);
+        taskTimeGraphPanel.setyString(yString);
+
+        clientTimeGraphPanel.setxString(xNString);
+        clientTimeGraphPanel.setyString(yString);
+
+        averageTimeGraphPanel.setxString(xNString);
+        averageTimeGraphPanel.setyString(yString);
 
         taskTimeGraphPanel.setPoints(taskTimeStatistic);
         clientTimeGraphPanel.setPoints(clientTimeStatistic);
