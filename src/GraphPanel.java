@@ -63,7 +63,8 @@ public class GraphPanel extends JPanel {
 
             if (posX >= stringXPos) {
                 break;
-            }
+            }        int maxY = 1;
+
 
             g.drawLine(posX, getHeight(), posX, getHeight() - 5);
             g.drawString(String.valueOf(start + (finish - start)*i/10) ,posX, getHeight() - 5);

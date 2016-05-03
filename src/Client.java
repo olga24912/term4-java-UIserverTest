@@ -41,6 +41,7 @@ public class Client implements Runnable {
     public void run() {
         long beginTime = System.currentTimeMillis();
         for (int i = 0; i < cntQuery; ++i) {
+            System.err.println(i);
             try {
                 sendQuery();
             } catch (IOException e) {

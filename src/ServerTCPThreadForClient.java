@@ -13,6 +13,8 @@ public class ServerTCPThreadForClient {
     private long timeForTask;
     private long timeForClient;
 
+    private int countOfTask = 0;
+
     private Thread catchThread;
 
     public ServerTCPThreadForClient(int port) {
@@ -57,23 +59,24 @@ public class ServerTCPThreadForClient {
     private void catchSocket() throws IOException {
         while (true) {
             Socket socket = accept();
-            long beginClientTime = System.currentTimeMillis();
             if (socket != null) {
                 (new Thread(()->{
-                    handlingQueries(socket, beginClientTime);})).start();
+                    handlingQueries(socket);})).start();
             } else {
                 return;
             }
         }
     }
 
-    private void handlingQueries(Socket socket, long beginClientTime) {
+    private void handlingQueries(Socket socket) {
         try {
             DataInputStream dis = new DataInputStream(socket.getInputStream());
             DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
 
             while (!socket.isClosed()) {
                 int arraySize = dis.readInt();
+                long beginClientTime = System.currentTimeMillis();
+                ++countOfTask;
                 int[] array = new int[arraySize];
 
                 for (int i = 0; i < arraySize; ++i) {
@@ -89,13 +92,12 @@ public class ServerTCPThreadForClient {
                 for (int i = 0; i < arraySize; ++i) {
                     dos.writeInt(array[i]);
                 }
+                timeForClient += System.currentTimeMillis() - beginClientTime;
                 System.err.println("send back");
             }
-            System.err.println("Socket close");
         } catch (IOException ignored) {
         } finally {
             try {
-                timeForClient += System.currentTimeMillis() - beginClientTime;
                 socket.close();
             } catch (IOException ignored) {
             }
@@ -103,10 +105,10 @@ public class ServerTCPThreadForClient {
     }
 
     public long getTimeForTask() {
-        return timeForTask;
+        return timeForTask/countOfTask;
     }
 
     public long getTimeForClient() {
-        return timeForClient;
+        return timeForClient/countOfTask;
     }
 }

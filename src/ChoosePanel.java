@@ -9,12 +9,12 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 
 public class ChoosePanel extends JPanel implements PropertyChangeListener, ActionListener {
-    private static String tcpNewThreadForClientString = "TCP protocol. New thread for client";
-    private static String tcpCashedThreadPoolForClientString = "TCP protocol. New cashed thread pool for client";
-    private static String tcpNIOString = "TCP protocol. NIO processing. Query in thread pool";
-    private static String tcpNewConnectOnQueryString = "TCP protocol. New connect for query";
-    private static String udpNewThreadString = "UDP protocol. New thread for query";
-    private static String udpThreadPoolString = "UDP protocol. Thread pool for query";
+    private static String tcpNewThreadForClientString = "TCP. New thread for client";
+    private static String tcpCashedThreadPoolForClientString = "TCP. New cashed thread pool for client";
+    private static String tcpNIOString = "TCP. NIO processing. Query in thread pool";
+    private static String tcpNewConnectOnQueryString = "TCP. New connect for query";
+    private static String udpNewThreadString = "UDP. New thread for query";
+    private static String udpThreadPoolString = "UDP. Thread pool for query";
 
     private static String countOfElemN = "(N)Count of element in array: ";
     private static String countOfClientM = "(M)Count of working clients in same moment: ";
@@ -25,10 +25,10 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
     private static String endOfLimitString = "Maximal value of chosen parameter";
     private static String stepString = "step of change parameter";
 
-    private static String yString = "time, ms";
-    private static String xNString = "N, array size";
-    private static String xMString = "M, clients count";
-    private static String xDeltaString = "delta, between query time";
+    private static final String Y_STRING = "time, ms";
+    private static final String X_N_STRING = "N, array size";
+    private static final String X_M_STRING = "M, clients count";
+    private static final String X_DELTA_STRING = "delta, between query time";
 
     private GraphPanel taskTimeGraphPanel, clientTimeGraphPanel, averageTimeGraphPanel;
 
@@ -57,6 +57,8 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
     private int beginLimit = 0;
     private int endLimit = 0;
     private int step = 1;
+
+    private int xCountOfQuery = 0;
 
     public ChoosePanel() {
         super(new BorderLayout());
@@ -216,6 +218,8 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
             endLimit = ((Number)endLimitField.getValue()).intValue();
         } else if (source == stepField) {
             step = ((Number)stepField.getValue()).intValue();
+        } else if (source == xField) {
+            xCountOfQuery = ((Number)xField.getValue()).intValue();
         }
     }
 
@@ -268,7 +272,7 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
     }
 
     private void testTaskTimeTcpNewThreadForClient() {
-        int N = 1, M = 10, X = 1, delta = 1;
+        int N = 1, M = 10, delta = 1;
 
         ArrayList<Point> taskTimeStatistic = new ArrayList<>();
         ArrayList<Point> clientTimeStatistic = new ArrayList<>();
@@ -289,7 +293,7 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
             for (int m = 0; m < M; ++m) {
                 Client client = null;
                 try {
-                    client = new Client("localhost", 8080, n, X, delta);
+                    client = new Client("localhost", 8080, n, xCountOfQuery, delta);
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }
@@ -318,19 +322,19 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
                 clintTime += clients.get(i).getWorkingTime();
             }
 
-            taskTimeStatistic.add(new Point(n, (int) server.getTimeForTask()/M));
-            clientTimeStatistic.add(new Point(n, (int) server.getTimeForClient()/M));
+            taskTimeStatistic.add(new Point(n, (int) server.getTimeForTask()));
+            clientTimeStatistic.add(new Point(n, (int) server.getTimeForClient()));
             averageTimeStatistic.add(new Point(n, (int) clintTime/M));
 
         }
-        taskTimeGraphPanel.setxString(xNString);
-        taskTimeGraphPanel.setyString(yString);
+        taskTimeGraphPanel.setxString(X_N_STRING);
+        taskTimeGraphPanel.setyString(Y_STRING);
 
-        clientTimeGraphPanel.setxString(xNString);
-        clientTimeGraphPanel.setyString(yString);
+        clientTimeGraphPanel.setxString(X_N_STRING);
+        clientTimeGraphPanel.setyString(Y_STRING);
 
-        averageTimeGraphPanel.setxString(xNString);
-        averageTimeGraphPanel.setyString(yString);
+        averageTimeGraphPanel.setxString(X_N_STRING);
+        averageTimeGraphPanel.setyString(Y_STRING);
 
         taskTimeGraphPanel.setPoints(taskTimeStatistic);
         clientTimeGraphPanel.setPoints(clientTimeStatistic);
