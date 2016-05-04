@@ -54,6 +54,7 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
     private static String testString = "TEST";
 
     private String currentArchitecture = tcpNewThreadForClientString;
+    private String currentParametr = countOfElemN;
     private int beginLimit = 0;
     private int endLimit = 0;
     private int step = 1;
@@ -244,14 +245,20 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
             nField.setEnabled(false);
             mField.setEnabled(true);
             deltaField.setEnabled(true);
+
+            currentParametr = countOfElemN;
         } else if (countOfClientM.equals(e.getActionCommand())) {
             mField.setEnabled(false);
             nField.setEnabled(true);
             deltaField.setEnabled(true);
+
+            currentParametr = countOfClientM;
         } else if (deltaBetweenQuery.equals(e.getActionCommand())) {
             deltaField.setEnabled(false);
             nField.setEnabled(true);
             mField.setEnabled(true);
+
+            currentParametr = deltaBetweenQuery;
         }
     }
 
@@ -272,72 +279,112 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
     }
 
     private void testTaskTimeTcpNewThreadForClient() {
-        int N = 1, M = 10, delta = 1;
-
         ArrayList<Point> taskTimeStatistic = new ArrayList<>();
         ArrayList<Point> clientTimeStatistic = new ArrayList<>();
         ArrayList<Point> averageTimeStatistic = new ArrayList<>();
 
-        for (int n = beginLimit; n < endLimit; n += step) {
-            ServerTCPThreadForClient server = new ServerTCPThreadForClient(8080);
-            try {
-                server.start();
-            } catch (IOException e1) {
-                e1.printStackTrace();
-                return;
+        if (currentParametr.equals(countOfElemN)) {
+            for (int n = beginLimit; n < endLimit; n += step) {
+                ArrayList<Integer> res = testTaskTimeTapNewThreadForClientWithParameters(n, 10, 10);
+
+                taskTimeStatistic.add(new Point(n, res.get(0)));
+                clientTimeStatistic.add(new Point(n, res.get(1)));
+                averageTimeStatistic.add(new Point(n, res.get(2)));
+
             }
 
-            ArrayList<Thread> threads = new ArrayList<>();
-            ArrayList<Client> clients = new ArrayList<>();
+            taskTimeGraphPanel.setxString(X_N_STRING);
+            clientTimeGraphPanel.setxString(X_N_STRING);
+            averageTimeGraphPanel.setxString(X_N_STRING);
+        } else if (currentParametr.equals(countOfClientM)) {
+            for (int m = beginLimit; m < endLimit; m += step) {
+                ArrayList<Integer> res = testTaskTimeTapNewThreadForClientWithParameters(10, m, 10);
 
-            for (int m = 0; m < M; ++m) {
-                Client client = null;
-                try {
-                    client = new Client("localhost", 8080, n, xCountOfQuery, delta);
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                }
+                taskTimeStatistic.add(new Point(m, res.get(0)));
+                clientTimeStatistic.add(new Point(m, res.get(1)));
+                averageTimeStatistic.add(new Point(m, res.get(2)));
 
-                clients.add(client);
+            }
+            taskTimeGraphPanel.setxString(X_M_STRING);
+            clientTimeGraphPanel.setxString(X_M_STRING);
+            averageTimeGraphPanel.setxString(X_M_STRING);
+        } else if (currentParametr.equals(deltaBetweenQuery)) {
+            for (int delta = beginLimit; delta < endLimit; delta += step) {
+                ArrayList<Integer> res = testTaskTimeTapNewThreadForClientWithParameters(10, 10, delta);
 
-                assert client != null;
-                Thread newThread = new Thread(client);
-
-                threads.add(newThread);
-                newThread.start();
+                taskTimeStatistic.add(new Point(delta, res.get(0)));
+                clientTimeStatistic.add(new Point(delta, res.get(1)));
+                averageTimeStatistic.add(new Point(delta, res.get(2)));
             }
 
-            for (int m = 0; m < M; ++m) {
-                try {
-                    threads.get(m).join();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            server.stop();
-
-            long clintTime = 0;
-            for (int i = 0; i < M; ++i) {
-                clintTime += clients.get(i).getWorkingTime();
-            }
-
-            taskTimeStatistic.add(new Point(n, (int) server.getTimeForTask()));
-            clientTimeStatistic.add(new Point(n, (int) server.getTimeForClient()));
-            averageTimeStatistic.add(new Point(n, (int) clintTime/M));
-
+            taskTimeGraphPanel.setxString(X_DELTA_STRING);
+            clientTimeGraphPanel.setxString(X_DELTA_STRING);
+            averageTimeGraphPanel.setxString(X_DELTA_STRING);
         }
-        taskTimeGraphPanel.setxString(X_N_STRING);
+
+
         taskTimeGraphPanel.setyString(Y_STRING);
-
-        clientTimeGraphPanel.setxString(X_N_STRING);
         clientTimeGraphPanel.setyString(Y_STRING);
-
-        averageTimeGraphPanel.setxString(X_N_STRING);
         averageTimeGraphPanel.setyString(Y_STRING);
 
         taskTimeGraphPanel.setPoints(taskTimeStatistic);
         clientTimeGraphPanel.setPoints(clientTimeStatistic);
         averageTimeGraphPanel.setPoints(averageTimeStatistic);
+    }
+
+    ArrayList<Integer> testTaskTimeTapNewThreadForClientWithParameters(int n, int m, int delta) {
+        ArrayList<Integer> res = new ArrayList<>();
+        res.add(0);
+        res.add(0);
+        res.add(0);
+
+        ServerTCPThreadForClient server = new ServerTCPThreadForClient(8080);
+        try {
+            server.start();
+        } catch (IOException e1) {
+            e1.printStackTrace();
+            return res;
+        }
+
+        ArrayList<Thread> threads = new ArrayList<>();
+        ArrayList<Client> clients = new ArrayList<>();
+
+        for (int i = 0; i < m; ++i) {
+            Client client = null;
+            try {
+                client = new Client("localhost", 8080, n, xCountOfQuery, delta);
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+
+            clients.add(client);
+
+            assert client != null;
+            Thread newThread = new Thread(client);
+
+            threads.add(newThread);
+            newThread.start();
+        }
+
+        for (int i = 0; i < m; ++i) {
+            try {
+                threads.get(i).join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        server.stop();
+
+        long clintTime = 0;
+        for (int i = 0; i < m; ++i) {
+            clintTime += clients.get(i).getWorkingTime();
+        }
+
+        res.set(2,(int)clintTime/m);
+        res.set(1, (int)server.getTimeForClient());
+        res.set(0, (int)server.getTimeForTask());
+
+        return res;
     }
 }
