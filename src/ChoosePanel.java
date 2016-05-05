@@ -60,6 +60,9 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
     private int step = 1;
 
     private int xCountOfQuery = 0;
+    private int nCountOfElem = 0;
+    private int mCountOfClient = 0;
+    private int deltaTimeBetweenQuery = 0;
 
     public ChoosePanel() {
         super(new BorderLayout());
@@ -221,6 +224,12 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
             step = ((Number)stepField.getValue()).intValue();
         } else if (source == xField) {
             xCountOfQuery = ((Number)xField.getValue()).intValue();
+        } else if (source == nField) {
+            nCountOfElem = ((Number)nField.getValue()).intValue();
+        } else if (source == mField) {
+            mCountOfClient = ((Number)mField.getValue()).intValue();
+        } else if (source == deltaField) {
+            deltaTimeBetweenQuery = ((Number)deltaField.getValue()).intValue();
         }
     }
 
@@ -285,7 +294,7 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
 
         if (currentParametr.equals(countOfElemN)) {
             for (int n = beginLimit; n < endLimit; n += step) {
-                ArrayList<Integer> res = testTaskTimeTapNewThreadForClientWithParameters(n, 10, 10);
+                ArrayList<Integer> res = testTaskTimeTapNewThreadForClientWithParameters(n, mCountOfClient, deltaTimeBetweenQuery);
 
                 taskTimeStatistic.add(new Point(n, res.get(0)));
                 clientTimeStatistic.add(new Point(n, res.get(1)));
@@ -298,7 +307,7 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
             averageTimeGraphPanel.setxString(X_N_STRING);
         } else if (currentParametr.equals(countOfClientM)) {
             for (int m = beginLimit; m < endLimit; m += step) {
-                ArrayList<Integer> res = testTaskTimeTapNewThreadForClientWithParameters(10, m, 10);
+                ArrayList<Integer> res = testTaskTimeTapNewThreadForClientWithParameters(nCountOfElem, m, deltaTimeBetweenQuery);
 
                 taskTimeStatistic.add(new Point(m, res.get(0)));
                 clientTimeStatistic.add(new Point(m, res.get(1)));
@@ -310,7 +319,7 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
             averageTimeGraphPanel.setxString(X_M_STRING);
         } else if (currentParametr.equals(deltaBetweenQuery)) {
             for (int delta = beginLimit; delta < endLimit; delta += step) {
-                ArrayList<Integer> res = testTaskTimeTapNewThreadForClientWithParameters(10, 10, delta);
+                ArrayList<Integer> res = testTaskTimeTapNewThreadForClientWithParameters(nCountOfElem, mCountOfClient, delta);
 
                 taskTimeStatistic.add(new Point(delta, res.get(0)));
                 clientTimeStatistic.add(new Point(delta, res.get(1)));
