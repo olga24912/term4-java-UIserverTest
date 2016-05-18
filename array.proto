@@ -1,0 +1,8 @@
+syntax = "proto2";
+
+option java_outer_classname="ArrayProto";
+
+message Array {
+    required int32 n = 1;
+    repeated int32 data = 2;
+}

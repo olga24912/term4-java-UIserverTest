@@ -1,8 +1,5 @@
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.Random;
 
 public class Client implements Runnable {
@@ -32,6 +29,7 @@ public class Client implements Runnable {
 
     public void close() {
         try {
+            System.err.println("CLOSE");
             socket.close();
         } catch (IOException ignored) {
         }
@@ -58,21 +56,23 @@ public class Client implements Runnable {
     }
 
     public void sendQuery() throws IOException {
-        ArrayList<Integer> arrayList = new ArrayList<>();
+        ArrayProto.Array.Builder arrayBuilder = ArrayProto.Array.newBuilder().setN(arraySize);
+
         for (int i = 0; i < arraySize; ++i) {
-            arrayList.add(rnd.nextInt());
+            arrayBuilder = arrayBuilder.addData(rnd.nextInt());
         }
 
-        dos.writeInt(arraySize);
-        for (int i = 0; i < arraySize; ++i) {
-            dos.writeInt(arrayList.get(i));
-        }
-        dos.flush();
+        ArrayProto.Array array = arrayBuilder.build();
 
         System.err.println("print info");
-        dis.readInt();
-        for (int i = 0; i < arraySize; ++i) {
-            dis.readInt();
-        }
+        //System.err.println(array);
+
+        array.writeTo(dos);
+
+        System.err.println("finish write");
+
+        dos.close();
+
+        //ArrayProto.Array.parseFrom(dis);
     }
 }

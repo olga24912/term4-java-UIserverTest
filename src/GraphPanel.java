@@ -18,7 +18,7 @@ public class GraphPanel extends JPanel {
 
     public void setPoints(ArrayList<Point> points) {
         this.points = points;
-        System.err.println("new Points");
+        //System.err.println("new Points");
         repaint();
     }
 
@@ -91,7 +91,7 @@ public class GraphPanel extends JPanel {
             int oldX = points.get(i - 1).getX(), oldY = points.get(i - 1).getY();
             int newX = points.get(i).getX(), newY = points.get(i).getY();
 
-            System.err.println( "Old x : " + oldX + " NewX " + newX);
+//            System.err.println( "Old x : " + oldX + " NewX " + newX);
 
             oldX -= start;
             oldX = getWidth()*oldX/(finish - start);
@@ -104,8 +104,7 @@ public class GraphPanel extends JPanel {
             newX += startX;
 
             newY = getHeight() - getHeight() * newY/maxY;
-
-            System.err.println("print Line " + oldX + " "  + oldY + " " + newX + " " + newY);
+//          System.err.println("print Line " + oldX + " "  + oldY + " " + newX + " " + newY);
             g.drawLine(oldX, oldY, newX, newY);
         }
     }
