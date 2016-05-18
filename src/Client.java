@@ -56,7 +56,7 @@ public class Client implements Runnable {
     }
 
     public void sendQuery() throws IOException {
-        ArrayProto.Array.Builder arrayBuilder = ArrayProto.Array.newBuilder().setN(arraySize);
+        ArrayProto.Array.Builder arrayBuilder = ArrayProto.Array.newBuilder();
 
         for (int i = 0; i < arraySize; ++i) {
             arrayBuilder = arrayBuilder.addData(rnd.nextInt());
@@ -65,14 +65,13 @@ public class Client implements Runnable {
         ArrayProto.Array array = arrayBuilder.build();
 
         System.err.println("print info");
-        //System.err.println(array);
+        dos.writeInt(array.getSerializedSize());
+        dos.write(array.toByteArray());
+        dos.flush();
 
-        array.writeTo(dos);
+        byte[] resArray = new byte[dis.readInt()];
+        dis.readFully(resArray);
 
-        System.err.println("finish write");
-
-        dos.close();
-
-        //ArrayProto.Array.parseFrom(dis);
+        array = ArrayProto.Array.parseFrom(resArray);
     }
 }

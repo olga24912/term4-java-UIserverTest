@@ -1,8 +1,10 @@
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public class ServerTCPThreadForClient {
     private ServerSocket serverSocket;
@@ -68,55 +70,38 @@ public class ServerTCPThreadForClient {
 
     private void handlingQueries(Socket socket) {
         try {
-            InputStream dis = socket.getInputStream();
-            OutputStream dos = socket.getOutputStream();
+            DataInputStream dis = new DataInputStream(socket.getInputStream());
+            DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
 
             while (!socket.isClosed()) {
                 long beginClientTime = System.currentTimeMillis();
 
-                System.err.println(socket.isClosed());
                 System.err.print("start read\n");
-                ArrayProto.Array array;
-                try {
-                    array = ArrayProto.Array.parseFrom(dis);
-                } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException e1) {
-                        e1.printStackTrace();
-                    }
-                    continue;
-                }
+
                 ++countOfTask;
                 System.err.println("read info");
-                //System.err.println(array);
 
-                int arraySize = array.getN();
-                int[] transitArray = new int[arraySize];
+                byte[] byteArray;
+                byteArray = new byte[dis.readInt()];
+                dis.readFully(byteArray);
 
-                for (int i = 0; i < arraySize; ++i) {
-                    transitArray[i] = array.getData(i);
-                }
+                ArrayProto.Array array = ArrayProto.Array.parseFrom(byteArray);
 
                 long beginQueryTime = System.currentTimeMillis();
-                System.err.println(arraySize);
 
-                Arrays.sort(transitArray);
+                array = ArrayProto.Array.newBuilder().
+                        addAllData(array.getDataList().stream().sorted().collect(Collectors.toList())).build();
+
                 timeForTask += System.currentTimeMillis() - beginQueryTime;
 
-
-                ArrayProto.Array.Builder arrayBuilder = ArrayProto.Array.newBuilder().setN(arraySize);
-                for (int i = 0; i < arraySize; ++i) {
-                    arrayBuilder.addData(transitArray[i]);
-                }
-
-                arrayBuilder.build().writeTo(dos);
+                dos.writeInt(array.getSerializedSize());
+                dos.write(array.toByteArray());
+                dos.flush();
 
                 timeForClient += System.currentTimeMillis() - beginClientTime;
                 System.err.println("send back");
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ignored) {
         } finally {
             try {
                 socket.close();
