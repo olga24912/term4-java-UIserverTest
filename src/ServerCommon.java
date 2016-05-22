@@ -9,8 +9,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 public abstract class ServerCommon {
-    private ServerSocket serverSocket;
-    private final int port;
+    protected ServerSocket serverSocket;
+    protected final int port;
 
     protected volatile AtomicLong timeForTask = new AtomicLong();
     protected volatile AtomicLong timeForClient = new AtomicLong();

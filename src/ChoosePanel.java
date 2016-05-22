@@ -293,17 +293,17 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
 
     private Client getClient(int n, int x, int delta) throws IOException {
         if (currentArchitecture.equals(tcpNewThreadForClientString)) {
-            return new Client("localhost", 8080, n, x, delta, false);
+            return new ClientTCP("localhost", 8080, n, x, delta, false);
         } else if (currentArchitecture.equals(tcpCashedThreadPoolForClientString)) {
-            return new Client("localhost", 8080, n, x, delta, false);
+            return new ClientTCP("localhost", 8080, n, x, delta, false);
         } else if (currentArchitecture.equals(tcpNewConnectOnQueryString)) {
-            return new Client("localhost", 8080, n, x, delta, true);
+            return new ClientTCP("localhost", 8080, n, x, delta, true);
         } else if (currentArchitecture.equals(tcpNIOString)) {
-
+            return new ClientTCP("localhost", 8080, n, x, delta, false);
         } else if (currentArchitecture.equals(udpNewThreadString)) {
-
+            return new ClientUDP("localhost", 8080, n, x, delta);
         } else if (currentArchitecture.equals(udpThreadPoolString)) {
-
+            return new ClientUDP("localhost", 8080, n, x, delta);
         }
 
         throw new NotImplementedException();
