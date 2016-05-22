@@ -285,7 +285,7 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
         } else if (currentArchitecture.equals(udpNewThreadString)) {
             return new ServerUDPThreadForQuery(port);
         } else if (currentArchitecture.equals(udpThreadPoolString)) {
-
+            return new ServerUDPThreadPool(port);
         }
 
         throw new NotImplementedException();
