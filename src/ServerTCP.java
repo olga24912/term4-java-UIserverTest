@@ -4,24 +4,17 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
-public abstract class ServerCommon {
+public abstract class ServerTCP extends Server {
     protected ServerSocket serverSocket;
-    protected final int port;
-
-    protected volatile AtomicLong timeForTask = new AtomicLong();
-    protected volatile AtomicLong timeForClient = new AtomicLong();
-
-    protected volatile AtomicInteger countOfTask = new AtomicInteger();
     private Thread catchThread;
 
-    public ServerCommon(int port) {
-        this.port = port;
+    public ServerTCP(int port) {
+        super(port);
     }
 
+    @Override
     public void start() throws IOException {
         serverSocket = new ServerSocket(port);
         catchThread = new Thread(() -> {
@@ -36,6 +29,7 @@ public abstract class ServerCommon {
 
     protected abstract void catchSocket() throws IOException;
 
+    @Override
     public synchronized void stop() {
         try {
             serverSocket.close();
@@ -102,13 +96,5 @@ public abstract class ServerCommon {
 
         timeForClient.addAndGet(beginTimeForClient);
         timeForClient.addAndGet(System.currentTimeMillis());
-    }
-
-    public long getTimeForTask() {
-        return timeForTask.get()/countOfTask.get();
-    }
-
-    public long getTimeForClient() {
-        return timeForClient.get()/countOfTask.get();
     }
 }

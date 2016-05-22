@@ -3,7 +3,7 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class ServerTCPThreadPool extends ServerCommon{
+public class ServerTCPThreadPool extends ServerTCP {
     private ExecutorService threadPool = Executors.newCachedThreadPool();
 
     public ServerTCPThreadPool(int port) {

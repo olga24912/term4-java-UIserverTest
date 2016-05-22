@@ -273,7 +273,7 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
         }
     }
 
-    private ServerCommon getServer(int port) {
+    private Server getServer(int port) {
         if (currentArchitecture.equals(tcpNewThreadForClientString)) {
             return new ServerTCPThreadForClient(port);
         } else if (currentArchitecture.equals(tcpCashedThreadPoolForClientString)) {
@@ -283,7 +283,7 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
         } else if (currentArchitecture.equals(tcpNIOString)) {
 
         } else if (currentArchitecture.equals(udpNewThreadString)) {
-
+            return new ServerUDPThreadForQuery(port);
         } else if (currentArchitecture.equals(udpThreadPoolString)) {
 
         }
@@ -368,7 +368,7 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
         res.add(0);
 
 
-        ServerCommon server = getServer(8080);
+        Server server = getServer(8080);
         try {
             server.start();
         } catch (IOException e1) {

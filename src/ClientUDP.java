@@ -3,6 +3,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
+import java.nio.ByteBuffer;
 
 public class ClientUDP extends Client {
     private DatagramSocket datagramSocket;
@@ -23,8 +24,13 @@ public class ClientUDP extends Client {
     public void sendQuery() throws IOException {
         ArrayProto.Array array = buildArray();
 
-        DatagramPacket packet = new DatagramPacket(array.toByteArray(), array.getSerializedSize(),
+        ByteBuffer byteBuffer = ByteBuffer.allocate(array.getSerializedSize() + 4);
+        byteBuffer.putInt(array.getSerializedSize());
+        byteBuffer.put(array.toByteArray());
+
+        DatagramPacket packet = new DatagramPacket(byteBuffer.array(), byteBuffer.array().length,
                 new InetSocketAddress(host, port));
+
         datagramSocket.send(packet);
 
         DatagramPacket answerPacket = new DatagramPacket(buffer, buffer.length);

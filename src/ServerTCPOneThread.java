@@ -1,7 +1,7 @@
 import java.io.IOException;
 import java.net.Socket;
 
-public class ServerTCPOneThread extends ServerCommon {
+public class ServerTCPOneThread extends ServerTCP {
     public ServerTCPOneThread(int port) {
         super(port);
     }

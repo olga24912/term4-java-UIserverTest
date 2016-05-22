@@ -13,7 +13,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-public class ServerTCPNonBlocking extends ServerCommon {
+public class ServerTCPNonBlocking extends ServerTCP {
     private static final int BUFFER_SIZE = 100000000;
     private ServerSocketChannel serverSocketChannel;
     private Map<SocketChannel, ByteBuffer> buffer = new HashMap<>();
