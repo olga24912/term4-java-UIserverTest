@@ -237,7 +237,6 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        System.err.println("action");
         if (testString.equals(e.getActionCommand())) {
             testServer();
         } else if (tcpNewThreadForClientString.equals(e.getActionCommand())) {
@@ -281,7 +280,7 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
         } else if (currentArchitecture.equals(tcpNewConnectOnQueryString)) {
             return new ServerTCPOneThread(port);
         } else if (currentArchitecture.equals(tcpNIOString)) {
-
+            return new ServerTCPNonBlocking(port);
         } else if (currentArchitecture.equals(udpNewThreadString)) {
             return new ServerUDPThreadForQuery(port);
         } else if (currentArchitecture.equals(udpThreadPoolString)) {
