@@ -37,6 +37,7 @@ public class ClientTCP extends Client {
     public void sendQuery() throws IOException {
         if (reconnectAfterQuery) {
             try {
+                socket = new Socket();
                 socket.connect(new InetSocketAddress(host, port));
 
                 dis = new DataInputStream(socket.getInputStream());

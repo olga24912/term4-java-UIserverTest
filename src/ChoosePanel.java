@@ -6,9 +6,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class ChoosePanel extends JPanel implements PropertyChangeListener, ActionListener {
     private static String tcpNewThreadForClientString = "TCP. New thread for client";
@@ -65,6 +68,7 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
     private int nCountOfElem = 0;
     private int mCountOfClient = 0;
     private int deltaTimeBetweenQuery = 0;
+    private String serverHost = "localhost";
 
     public ChoosePanel() {
         super(new BorderLayout());
@@ -292,17 +296,17 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
 
     private Client getClient(int n, int x, int delta) throws IOException {
         if (currentArchitecture.equals(tcpNewThreadForClientString)) {
-            return new ClientTCP("localhost", 8080, n, x, delta, false);
+            return new ClientTCP(serverHost, 8080, n, x, delta, false);
         } else if (currentArchitecture.equals(tcpCashedThreadPoolForClientString)) {
-            return new ClientTCP("localhost", 8080, n, x, delta, false);
+            return new ClientTCP(serverHost, 8080, n, x, delta, false);
         } else if (currentArchitecture.equals(tcpNewConnectOnQueryString)) {
-            return new ClientTCP("localhost", 8080, n, x, delta, true);
+            return new ClientTCP(serverHost, 8080, n, x, delta, true);
         } else if (currentArchitecture.equals(tcpNIOString)) {
-            return new ClientTCP("localhost", 8080, n, x, delta, false);
+            return new ClientTCP(serverHost, 8080, n, x, delta, false);
         } else if (currentArchitecture.equals(udpNewThreadString)) {
-            return new ClientUDP("localhost", 8080, n, x, delta);
+            return new ClientUDP(serverHost, 8080, n, x, delta);
         } else if (currentArchitecture.equals(udpThreadPoolString)) {
-            return new ClientUDP("localhost", 8080, n, x, delta);
+            return new ClientUDP(serverHost, 8080, n, x, delta);
         }
 
         throw new NotImplementedException();
@@ -313,7 +317,15 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
         ArrayList<Point> clientTimeStatistic = new ArrayList<>();
         ArrayList<Point> averageTimeStatistic = new ArrayList<>();
 
+        taskTimeGraphPanel.setyString(Y_STRING);
+        clientTimeGraphPanel.setyString(Y_STRING);
+        averageTimeGraphPanel.setyString(Y_STRING);
+
         if (currentParametr.equals(countOfElemN)) {
+            taskTimeGraphPanel.setxString(X_N_STRING);
+            clientTimeGraphPanel.setxString(X_N_STRING);
+            averageTimeGraphPanel.setxString(X_N_STRING);
+
             for (int n = beginLimit; n < endLimit; n += step) {
                 ArrayList<Integer> res = testServerWithParameters(n, mCountOfClient, deltaTimeBetweenQuery);
 
@@ -322,10 +334,11 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
                 averageTimeStatistic.add(new Point(n, res.get(2)));
             }
 
-            taskTimeGraphPanel.setxString(X_N_STRING);
-            clientTimeGraphPanel.setxString(X_N_STRING);
-            averageTimeGraphPanel.setxString(X_N_STRING);
         } else if (currentParametr.equals(countOfClientM)) {
+            taskTimeGraphPanel.setxString(X_M_STRING);
+            clientTimeGraphPanel.setxString(X_M_STRING);
+            averageTimeGraphPanel.setxString(X_M_STRING);
+
             for (int m = beginLimit; m < endLimit; m += step) {
                 ArrayList<Integer> res = testServerWithParameters(nCountOfElem, m, deltaTimeBetweenQuery);
 
@@ -333,10 +346,11 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
                 clientTimeStatistic.add(new Point(m, res.get(1)));
                 averageTimeStatistic.add(new Point(m, res.get(2)));
             }
-            taskTimeGraphPanel.setxString(X_M_STRING);
-            clientTimeGraphPanel.setxString(X_M_STRING);
-            averageTimeGraphPanel.setxString(X_M_STRING);
         } else if (currentParametr.equals(deltaBetweenQuery)) {
+            taskTimeGraphPanel.setxString(X_DELTA_STRING);
+            clientTimeGraphPanel.setxString(X_DELTA_STRING);
+            averageTimeGraphPanel.setxString(X_DELTA_STRING);
+
             for (int delta = beginLimit; delta < endLimit; delta += step) {
                 ArrayList<Integer> res = testServerWithParameters(nCountOfElem, mCountOfClient, delta);
 
@@ -345,19 +359,56 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
                 averageTimeStatistic.add(new Point(delta, res.get(2)));
             }
 
-            taskTimeGraphPanel.setxString(X_DELTA_STRING);
-            clientTimeGraphPanel.setxString(X_DELTA_STRING);
-            averageTimeGraphPanel.setxString(X_DELTA_STRING);
         }
 
 
-        taskTimeGraphPanel.setyString(Y_STRING);
-        clientTimeGraphPanel.setyString(Y_STRING);
-        averageTimeGraphPanel.setyString(Y_STRING);
 
         taskTimeGraphPanel.setPoints(taskTimeStatistic);
         clientTimeGraphPanel.setPoints(clientTimeStatistic);
         averageTimeGraphPanel.setPoints(averageTimeStatistic);
+
+        writeInfoToFiles(taskTimeStatistic, clientTimeStatistic, averageTimeStatistic);
+    }
+
+    private void writeInfoToFiles(ArrayList<Point> taskTimeStatistic,
+                                  ArrayList<Point> clientTimeStatistic,
+                                  ArrayList<Point> averageTimeStatistic) {
+        PrintWriter writer = null;
+        try {
+            writer = new PrintWriter("Info");
+            writer.println("Server: " + currentArchitecture);
+            writer.println(currentParametr + " in limit from " + beginLimit + " to " + endLimit);
+            if (!Objects.equals(currentParametr, countOfElemN)) writer.println("N: " + nCountOfElem);
+            if (!Objects.equals(currentParametr, countOfClientM))writer.println("M: " + mCountOfClient);
+            if (!Objects.equals(currentParametr, deltaBetweenQuery))writer.println("delta: " + deltaTimeBetweenQuery);
+            writer.println("X: " + xCountOfQuery);
+            writer.close();
+
+            writer = new PrintWriter("taskTimeStatistic");
+            for (Point aTaskTimeStatistic : taskTimeStatistic) {
+                writer.println(aTaskTimeStatistic.getX() + " " + aTaskTimeStatistic.getY());
+            }
+            writer.close();
+
+
+            writer = new PrintWriter("clientTimeStatistic");
+            for (Point aClientTimeStatistic : clientTimeStatistic) {
+                writer.println(aClientTimeStatistic.getX() + " " + aClientTimeStatistic.getY());
+            }
+            writer.close();
+
+
+            writer = new PrintWriter("averageTimeStatistic");
+            for (Point anAverageTimeStatistic : averageTimeStatistic) {
+                writer.println(anAverageTimeStatistic.getX() + " " + anAverageTimeStatistic.getY());
+            }
+            writer.close();
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+
     }
 
     ArrayList<Integer> testServerWithParameters(int n, int m, int delta) {
@@ -415,5 +466,9 @@ public class ChoosePanel extends JPanel implements PropertyChangeListener, Actio
         res.set(0, (int)server.getTimeForTask());
 
         return res;
+    }
+
+    public void setServerHost(String serverHost) {
+        this.serverHost = serverHost;
     }
 }

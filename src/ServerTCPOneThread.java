@@ -8,10 +8,14 @@ public class ServerTCPOneThread extends ServerTCP {
 
     @Override
     protected void catchSocket() throws IOException {
-        Socket socket = accept();
-        if (socket != null) {
-            handlingQueries(socket);
-            socket.close();
+        while (true) {
+            Socket socket = accept();
+            if (socket != null) {
+                handlingQueries(socket);
+                socket.close();
+            } else {
+                return;
+            }
         }
     }
 }

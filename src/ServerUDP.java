@@ -22,32 +22,29 @@ public abstract class ServerUDP extends Server {
             e.printStackTrace();
         }
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (!datagramSocket.isClosed()) {
-                    DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+        new Thread(() -> {
+            while (!datagramSocket.isClosed()) {
+                DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
 
-                    try {
-                        datagramSocket.receive(packet);
-                    } catch (IOException e) {
-                        return;
-                    }
+                try {
+                    datagramSocket.receive(packet);
+                } catch (IOException e) {
+                    return;
+                }
 
-                    countOfTask.incrementAndGet();
+                countOfTask.incrementAndGet();
 
-                    try {
-                        ByteBuffer byteBuffer = ByteBuffer.wrap(buffer);
-                        int size = byteBuffer.getInt();
-                        byte[] data = new byte[size];
-                        byteBuffer.get(data);
+                try {
+                    ByteBuffer byteBuffer = ByteBuffer.wrap(buffer);
+                    int size = byteBuffer.getInt();
+                    byte[] data = new byte[size];
+                    byteBuffer.get(data);
 
-                        ArrayProto.Array array = ArrayProto.Array.parseFrom(data);
+                    ArrayProto.Array array = ArrayProto.Array.parseFrom(data);
 
-                        processOneTask(array, packet.getSocketAddress());
-                    } catch (InvalidProtocolBufferException e) {
-                        e.printStackTrace();
-                    }
+                    processOneTask(array, packet.getSocketAddress());
+                } catch (InvalidProtocolBufferException e) {
+                    e.printStackTrace();
                 }
             }
         }).start();
@@ -75,6 +72,7 @@ public abstract class ServerUDP extends Server {
             long beginClientTime = System.currentTimeMillis();
 
             timeForTask.addAndGet(-System.currentTimeMillis());
+            countOfTask.incrementAndGet();
 
             array = ArrayProto.Array.newBuilder().
                     addAllData(array.getDataList().stream().sorted().collect(Collectors.toList())).build();
