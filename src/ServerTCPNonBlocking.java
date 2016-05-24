@@ -89,6 +89,20 @@ public class ServerTCPNonBlocking extends ServerTCP {
                         socketChannel.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
                     }
                 }
+                if (key.isWritable()) {
+                    //System.err.println("Write");
+
+                    SocketChannel socketChannel = (SocketChannel) key.channel();
+                    ByteBuffer buf = context.get(socketChannel).outBuffer;
+
+                    //System.err.println(buf != null);
+                    //if (buf != null) {
+                    //    System.err.println(buf.position() + " "+ buf.limit());
+                    //}
+                    if (buf != null && buf.position() != buf.limit()) {
+                        writeFromBuffer(socketChannel, buf);
+                    }
+                }
                 if (key.isReadable()) {
                     System.err.println("Read");
 
@@ -123,41 +137,33 @@ public class ServerTCPNonBlocking extends ServerTCP {
 
                     }
                 }
-                if (key.isWritable()) {
-                    System.err.println("Write");
-
-                    SocketChannel socketChannel = (SocketChannel) key.channel();
-                    ByteBuffer buf = context.get(socketChannel).outBuffer;
-
-                    System.err.println(buf != null);
-                    if (buf != null) {
-                        System.err.println(buf.position() + " "+ buf.limit());
-                    }
-                    if (buf != null && buf.position() != buf.limit()) {
-                        writeFromBuffer(socketChannel, buf);
-                        if (buf.position() == buf.limit()) {
-                            socketChannel.close();
-                        }
-                    }
-                }
                 keyIterator.remove();
             }
         }
     }
 
     private void readToBuffer(SocketChannel socketChannel, ByteBuffer buf) throws IOException {
-        int bytesRead = socketChannel.read(buf);
+        try {
+            int bytesRead = socketChannel.read(buf);
 
-        while (bytesRead != -1 && buf.position() < buf.limit()) {
-            bytesRead = socketChannel.read(buf);
+            while (bytesRead != -1 && buf.position() < buf.limit()) {
+                bytesRead = socketChannel.read(buf);
+            }
+        } catch (IOException e) {
+            socketChannel.finishConnect();
+            socketChannel.close();
+
         }
     }
 
     private void writeFromBuffer(SocketChannel socketChannel, ByteBuffer buf) throws IOException {
-        int bytesRead = socketChannel.write(buf);
+        int bytesWrite = 0;
 
-        while (bytesRead != -1 && buf.position() < buf.limit()) {
-            bytesRead = socketChannel.write(buf);
+        while (bytesWrite != -1 && buf.position() < buf.limit() && buf.hasRemaining()) {
+            bytesWrite = socketChannel.write(buf);
+            if (bytesWrite > 0) {
+                System.err.println("Write " + bytesWrite + " bytes");
+            }
         }
     }
 
@@ -193,18 +199,28 @@ public class ServerTCPNonBlocking extends ServerTCP {
 
             timeForTask.addAndGet(System.currentTimeMillis());
 
-            context.outBuffer = ByteBuffer.allocate(array.getSerializedSize() + 4);
+            if (context.outBuffer != null && context.outBuffer.hasRemaining()) {
+                throw new AssertionError();
+            }
+            int serializedSize = array.getSerializedSize();
+            System.err.println("size = " + serializedSize);
+            ByteBuffer outBuffer = ByteBuffer.allocate(serializedSize + 4);
+            outBuffer.clear();
+            outBuffer.putInt(serializedSize);
+            outBuffer.put(array.toByteArray());
 
-            context.outBuffer.putInt(array.getSerializedSize());
-            context.outBuffer.put(array.toByteArray());
+            outBuffer.flip();
 
-            context.outBuffer.flip();
-
-            try {
-                writeFromBuffer(context.socketChannel, context.outBuffer);
+            /*try {
+                writeFromBuffer(context.socketChannel, outBuffer);
             } catch (IOException e) {
                 e.printStackTrace();
-            }
+            }*/
+
+            context.sizeBuffer.clear();
+            context.inBuffer.clear();
+            context.outBuffer = outBuffer;
+            context.state = ClientContext.WAITING_SIZE_STATE;
 
             timeForClient.addAndGet(-BeginClientTime);
             timeForClient.addAndGet(System.currentTimeMillis());

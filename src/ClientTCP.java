@@ -53,8 +53,11 @@ public class ClientTCP extends Client {
         dos.write(array.toByteArray());
         dos.flush();
 
-        byte[] resArray = new byte[dis.readInt()];
+        int resLength = dis.readInt();
+        byte[] resArray = new byte[resLength];
+        System.err.println("Before readFully " + String.format("%08x", resLength));
         dis.readFully(resArray);
+        System.err.println("After readFully " + dis.available());
 
         array = ArrayProto.Array.parseFrom(resArray);
 
