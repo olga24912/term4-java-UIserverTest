@@ -1,9 +1,11 @@
 import com.google.protobuf.InvalidProtocolBufferException;
 
 import java.io.IOException;
-import java.net.*;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.SocketAddress;
+import java.net.SocketException;
 import java.nio.ByteBuffer;
-import java.util.stream.Collectors;
 
 public abstract class ServerUDP extends Server {
 
@@ -74,8 +76,7 @@ public abstract class ServerUDP extends Server {
             timeForTask.addAndGet(-System.currentTimeMillis());
             countOfTask.incrementAndGet();
 
-            array = ArrayProto.Array.newBuilder().
-                    addAllData(array.getDataList().stream().sorted().collect(Collectors.toList())).build();
+            array = sort(array);
 
             timeForTask.addAndGet(System.currentTimeMillis());
 

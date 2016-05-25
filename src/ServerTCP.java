@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.stream.Collectors;
 
 public abstract class ServerTCP extends Server {
     protected ServerSocket serverSocket;
@@ -85,8 +84,7 @@ public abstract class ServerTCP extends Server {
 
         timeForTask.addAndGet(-System.currentTimeMillis());
 
-        array = ArrayProto.Array.newBuilder().
-                addAllData(array.getDataList().stream().sorted().collect(Collectors.toList())).build();
+        array = sort(array);
 
         timeForTask.addAndGet(System.currentTimeMillis());
 
