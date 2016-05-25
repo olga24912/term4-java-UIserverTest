@@ -32,10 +32,11 @@ public abstract class Server {
         ArrayProto.Array res;
         List<Integer> list = array.getDataList();
 
+        System.err.println("Sort " + list.size());
         ArrayList<Integer> arrayToSort = new ArrayList<>();
 
-        for (int i = 0; i < list.size(); ++i) {
-            arrayToSort.add(list.get(i));
+        for (Integer aList : list) {
+            arrayToSort.add(aList);
         }
 
         for (int i = 0; i < arrayToSort.size(); ++i) {

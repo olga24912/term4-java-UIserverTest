@@ -26,7 +26,6 @@ public abstract class Client implements Runnable {
 
     @Override
     public void run() {
-        System.err.println("Start client " + port + " " + host);
         long beginTime = System.currentTimeMillis();
         for (int i = 0; i < cntQuery; ++i) {
             try {

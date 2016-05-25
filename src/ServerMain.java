@@ -113,7 +113,6 @@ public class ServerMain {
                         } else if (id == SERVER_TCP_THREAD_FOR_CLIENT_PORT) {
                             serverTCPThreadForClient = new ServerTCPThreadForClient(id);
                             serverTCPThreadForClient.start();
-                            System.err.println("Start");
                         } else if (id == SERVER_TCP_THREAD_POOL_PORT) {
                             serverTCPThreadPool = new ServerTCPThreadPool(id);
                             serverTCPThreadPool.start();
@@ -128,16 +127,13 @@ public class ServerMain {
                         break;
                     case "STOP":
                         currentServer.stop();
-                        System.err.println("stop");
                         dos.writeUTF("OK");
                         break;
                     case "GET_CLIENT":
                         dos.writeLong(currentServer.getTimeForClient());
-                        System.err.println("print get client");
                         break;
                     case "GET_TASK":
                         dos.writeLong(currentServer.getTimeForTask());
-                        System.err.println("print get server");
                         break;
                 }
             }

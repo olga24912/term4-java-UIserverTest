@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
 
 public class ServerTCPNonBlocking extends ServerTCP {
     private ServerSocketChannel serverSocketChannel;
@@ -72,7 +71,6 @@ public class ServerTCPNonBlocking extends ServerTCP {
             while (keyIterator.hasNext()) {
                 SelectionKey key = keyIterator.next();
                 if (key.isAcceptable()) {
-                    System.err.println("Accept");
                     SocketChannel socketChannel = serverSocketChannel.accept();
                     if (socketChannel != null) {
                         ClientContext clientContext = new ClientContext();
@@ -90,22 +88,14 @@ public class ServerTCPNonBlocking extends ServerTCP {
                     }
                 }
                 if (key.isWritable()) {
-                    //System.err.println("Write");
-
                     SocketChannel socketChannel = (SocketChannel) key.channel();
                     ByteBuffer buf = context.get(socketChannel).outBuffer;
 
-                    //System.err.println(buf != null);
-                    //if (buf != null) {
-                    //    System.err.println(buf.position() + " "+ buf.limit());
-                    //}
                     if (buf != null && buf.position() != buf.limit()) {
                         writeFromBuffer(socketChannel, buf);
                     }
                 }
                 if (key.isReadable()) {
-                    System.err.println("Read");
-
                     SocketChannel socketChannel = (SocketChannel)key.channel();
 
                     ClientContext clientContext = context.get(socketChannel);
@@ -161,9 +151,6 @@ public class ServerTCPNonBlocking extends ServerTCP {
 
         while (bytesWrite != -1 && buf.position() < buf.limit() && buf.hasRemaining()) {
             bytesWrite = socketChannel.write(buf);
-            if (bytesWrite > 0) {
-                System.err.println("Write " + bytesWrite + " bytes");
-            }
         }
     }
 
@@ -191,11 +178,9 @@ public class ServerTCPNonBlocking extends ServerTCP {
             long BeginClientTime = System.currentTimeMillis();
 
             timeForTask.addAndGet(-System.currentTimeMillis());
-
             countOfTask.incrementAndGet();
-            array = ArrayProto.Array.newBuilder().
-                    addAllData(array.getDataList().stream().sorted().
-                            collect(Collectors.toList())).build();
+
+            array = sort(array);
 
             timeForTask.addAndGet(System.currentTimeMillis());
 
@@ -203,7 +188,6 @@ public class ServerTCPNonBlocking extends ServerTCP {
                 throw new AssertionError();
             }
             int serializedSize = array.getSerializedSize();
-            System.err.println("size = " + serializedSize);
             ByteBuffer outBuffer = ByteBuffer.allocate(serializedSize + 4);
             outBuffer.clear();
             outBuffer.putInt(serializedSize);
