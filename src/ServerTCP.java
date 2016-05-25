@@ -16,6 +16,7 @@ public abstract class ServerTCP extends Server {
 
     @Override
     public void start() throws IOException {
+        System.err.println("Start " + port);
         serverSocket = new ServerSocket(port);
         catchThread = new Thread(() -> {
             try {

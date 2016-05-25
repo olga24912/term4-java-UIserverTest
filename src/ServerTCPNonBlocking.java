@@ -211,12 +211,6 @@ public class ServerTCPNonBlocking extends ServerTCP {
 
             outBuffer.flip();
 
-            /*try {
-                writeFromBuffer(context.socketChannel, outBuffer);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }*/
-
             context.sizeBuffer.clear();
             context.inBuffer.clear();
             context.outBuffer = outBuffer;
