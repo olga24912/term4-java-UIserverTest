@@ -1,0 +1,5 @@
+Server: TCP. New connect for query
+(delta)Time between client query:  in limit from 1 to 100
+N: 1000
+M: 10
+X: 10

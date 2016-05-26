@@ -15,6 +15,7 @@ public class ClientUDP extends Client {
         buffer = new byte[arraySize*4 + 4];
         try {
             datagramSocket = new DatagramSocket();
+            datagramSocket.setSoTimeout(30000);
         } catch (SocketException e) {
             e.printStackTrace();
         }

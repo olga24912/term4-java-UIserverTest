@@ -1,0 +1,5 @@
+Server: TCP. New thread for client
+(M)Count of working clients in same moment:  in limit from 1 to 50
+N: 1000
+delta: 10
+X: 10
